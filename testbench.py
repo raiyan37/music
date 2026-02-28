@@ -97,8 +97,8 @@ def main():
                         help="Use MusicGPT Inpaint for seamless integration (default: True)")
     parser.add_argument("--no-seamless", dest="seamless", action="store_false",
                         help="Use local pydub splice instead of Inpaint")
-    parser.add_argument("--window", type=float, default=15.0,
-                        help="Replace window in seconds for seamless mode (default: 15)")
+    parser.add_argument("--window", type=float, default=30.0,
+                        help="Replace window in seconds for seamless mode (default: 30)")
     parser.add_argument("--prompt", dest="integration_prompt",
                         help="Integration/inpaint prompt for seamless mode")
     parser.add_argument("--music-style", dest="music_style",

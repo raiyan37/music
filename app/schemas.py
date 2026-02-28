@@ -54,12 +54,21 @@ class InjectRequest(BaseModel):
         ),
     )
     replace_window_seconds: float = Field(
-        15.0,
-        ge=1.0,
-        le=120.0,
+        30.0,
+        ge=0.0,
+        le=60.0,
         description=(
             "Length of the window (seconds) to replace in seamless mode. "
             "The window runs from insert_at_seconds to insert_at_seconds + replace_window_seconds."
+        ),
+    )
+    ad_length_seconds: Optional[float] = Field(
+        None,
+        ge=0.0,
+        le=60.0,
+        description=(
+            "Target ad duration in seconds. Used to control AI-generated ad length in local mode, "
+            "and can override replace_window_seconds in seamless mode when provided."
         ),
     )
     ad_integration_prompt: Optional[str] = Field(

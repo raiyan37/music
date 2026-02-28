@@ -3,397 +3,76 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ad Injector</title>
+  <title>FLOW</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:        #0f1117;
-      --surface:   #1a1d27;
-      --surface2:  #242736;
-      --border:    #2e3145;
-      --accent:    #6c63ff;
-      --accent-h:  #8b85ff;
-      --text:      #e8eaf0;
-      --muted:     #8a8fa8;
-      --success:   #3ecf8e;
-      --error:     #f05b5b;
-      --warning:   #f0b429;
-      --radius:    10px;
+    .wave-bg {
+      background-image:
+        radial-gradient(1200px circle at 50% -20%, rgba(59,130,246,0.35), transparent 60%),
+        radial-gradient(900px circle at 0% 30%, rgba(125,211,252,0.35), transparent 55%),
+        radial-gradient(900px circle at 100% 30%, rgba(191,219,254,0.45), transparent 55%);
+      background-size: 140% 140%;
+      animation: waveMove 14s ease-in-out infinite;
     }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-      padding: 2rem 1rem;
+    @keyframes waveMove {
+      0%   { background-position: 0% 0%, 0% 0%, 0% 0%; }
+      50%  { background-position: 100% 20%, 80% 30%, 20% 40%; }
+      100% { background-position: 0% 0%, 0% 0%, 0% 0%; }
     }
-
-    .container { max-width: 780px; margin: 0 auto; }
-
-    header { text-align: center; margin-bottom: 2.5rem; }
-    header h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.5px; }
-    header h1 span { color: var(--accent); }
-    header p { color: var(--muted); margin-top: .4rem; font-size: .95rem; }
-
-    .badge {
-      display: inline-block;
-      background: rgba(108,99,255,.15);
-      color: var(--accent-h);
-      font-size: .75rem;
-      font-weight: 600;
-      padding: 2px 10px;
-      border-radius: 20px;
-      border: 1px solid rgba(108,99,255,.3);
-      margin-top: .6rem;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      margin-bottom: 1.2rem;
-    }
-    .card-title {
-      font-size: .8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--muted);
-      margin-bottom: 1rem;
-    }
-
-    .field { margin-bottom: 1rem; }
-    .field:last-child { margin-bottom: 0; }
-    label {
-      display: block;
-      font-size: .85rem;
-      font-weight: 500;
-      margin-bottom: .35rem;
-      color: var(--text);
-    }
-    label .hint {
-      font-weight: 400;
-      color: var(--muted);
-      font-size: .78rem;
-    }
-
-    input[type=text], input[type=number], select, textarea {
-      width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-size: .9rem;
-      padding: .55rem .75rem;
-      outline: none;
-      transition: border-color .15s;
-    }
-    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-    textarea { resize: vertical; min-height: 70px; }
-    select option { background: var(--surface2); }
-
-    .drop-zone {
-      border: 2px dashed var(--border);
-      border-radius: 8px;
-      padding: 1.8rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color .2s, background .2s;
-    }
-    .drop-zone:hover, .drop-zone.dragover {
-      border-color: var(--accent);
-      background: rgba(108,99,255,.06);
-    }
-    .drop-zone p { color: var(--muted); font-size: .88rem; }
-    .drop-zone p strong { color: var(--accent); }
-    .drop-zone input { display: none; }
-    .file-info {
-      margin-top: .5rem;
-      font-size: .82rem;
-      color: var(--success);
-    }
-
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      gap: .7rem;
-    }
-    .toggle {
-      position: relative;
-      width: 42px;
-      height: 22px;
-      flex-shrink: 0;
-    }
-    .toggle input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; inset: 0;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      cursor: pointer;
-      transition: background .2s;
-    }
-    .slider::before {
-      content: '';
-      position: absolute;
-      left: 3px; top: 50%;
-      transform: translateY(-50%);
-      width: 14px; height: 14px;
-      border-radius: 50%;
-      background: var(--muted);
-      transition: left .2s, background .2s;
-    }
-    .toggle input:checked + .slider { background: rgba(108,99,255,.3); border-color: var(--accent); }
-    .toggle input:checked + .slider::before { left: 23px; background: var(--accent); }
-
-    .radio-group { display: flex; gap: .6rem; flex-wrap: wrap; }
-    .radio-group label {
-      display: flex; align-items: center; gap: .4rem;
-      padding: .4rem .9rem;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: .85rem;
-      transition: border-color .15s, background .15s;
-      margin-bottom: 0;
-    }
-    .radio-group input[type=radio] { display: none; }
-    .radio-group input[type=radio]:checked + span {
-      color: var(--accent);
-    }
-    .radio-group label:has(input:checked) {
-      border-color: var(--accent);
-      background: rgba(108,99,255,.1);
-    }
-
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    @media (max-width: 520px) { .two-col { grid-template-columns: 1fr; } }
-
-    .btn {
-      display: block; width: 100%;
-      padding: .8rem;
-      background: var(--accent);
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background .15s, opacity .15s;
-    }
-    .btn:hover { background: var(--accent-h); }
-    .btn:disabled { opacity: .5; cursor: not-allowed; }
-
-    #status-card { display: none; }
-    .status-pill {
-      display: inline-block;
-      padding: .25rem .8rem;
-      border-radius: 20px;
-      font-size: .8rem;
-      font-weight: 600;
-      text-transform: capitalize;
-    }
-    .pill-processing { background: rgba(240,180,41,.15); color: var(--warning); border: 1px solid rgba(240,180,41,.3); }
-    .pill-complete   { background: rgba(62,207,142,.15); color: var(--success); border: 1px solid rgba(62,207,142,.3); }
-    .pill-failed     { background: rgba(240,91,91,.15);  color: var(--error);   border: 1px solid rgba(240,91,91,.3); }
-    .pill-pending    { background: rgba(138,143,168,.15); color: var(--muted);  border: 1px solid rgba(138,143,168,.3); }
-
-    .progress-bar-wrap {
-      background: var(--surface2);
-      border-radius: 4px;
-      height: 5px;
-      overflow: hidden;
-      margin-top: .8rem;
-    }
-    .progress-bar {
-      height: 100%;
-      border-radius: 4px;
-      background: var(--accent);
-      width: 0%;
-      transition: width .3s;
-    }
-    .progress-bar.indeterminate {
-      animation: indeterminate 1.6s infinite;
-      width: 40%;
-    }
-    @keyframes indeterminate {
-      0%   { transform: translateX(-100%); }
-      100% { transform: translateX(350%); }
-    }
-
-    .download-btn {
-      display: none;
-      margin-top: 1rem;
-      text-align: center;
-      background: var(--success);
-      color: #fff;
-      padding: .7rem 1.4rem;
-      border-radius: 8px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: opacity .15s;
-    }
-    .download-btn:hover { opacity: .85; }
-    .error-msg { color: var(--error); font-size: .88rem; margin-top: .6rem; }
-
-    .hidden { display: none !important; }
-    .collapsible { overflow: hidden; transition: max-height .25s ease; max-height: 1000px; }
-    .collapsible.collapsed { max-height: 0; }
   </style>
 </head>
-<body>
-<div class="container">
+<body class="bg-[#f3f7ff] text-slate-900">
+<div class="min-h-screen wave-bg flex items-center justify-center px-4 py-12">
+  <div class="mx-auto w-full max-w-2xl">
 
-  <header>
-    <h1>Ad <span>Injector</span></h1>
-    <p>Seamlessly insert an advertisement into any song using MusicGPT AI.</p>
-    <span class="badge">Powered by MusicGPT</span>
-  </header>
+    <header class="mb-10 text-center">
+      <h1 class="text-6xl font-bold tracking-tight text-slate-900" style="font-family: 'Space Grotesk', system-ui, sans-serif;">FLOW</h1>
+    </header>
 
-  <!-- ── Song Upload ── -->
-  <div class="card">
-    <div class="card-title">1 · Source Song</div>
-    <div class="drop-zone" id="song-zone">
-      <p><strong>Click or drag</strong> an audio file here</p>
-      <p style="font-size:.78rem;margin-top:.3rem;">MP3, WAV, FLAC, OGG, M4A accepted</p>
-      <input type="file" id="song-file" accept="audio/*" />
-      <div class="file-info" id="song-info"></div>
-    </div>
-  </div>
+    <!-- Minimal prompt box -->
+    <div class="rounded-2xl border border-blue-100/80 bg-white/80 p-4 shadow-[0_20px_60px_-30px_rgba(37,99,235,0.25)] backdrop-blur">
+      <textarea id="ad-text-prompt" rows="3" class="w-full rounded-xl border border-blue-100 bg-white p-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-400/40" placeholder="Describe your product or business."></textarea>
 
-  <!-- ── Ad Input Mode ── -->
-  <div class="card">
-    <div class="card-title">2 · Ad Content</div>
-
-    <div class="field">
-      <label>Ad input mode</label>
-      <div class="radio-group">
-        <label><input type="radio" name="ad-mode" value="audio_upload" checked><span>Upload audio file</span></label>
-        <label><input type="radio" name="ad-mode" value="text_prompt"><span>Text prompt (AI generates)</span></label>
-      </div>
-    </div>
-
-    <div id="ad-upload-section" class="field">
-      <div class="drop-zone" id="ad-zone">
-        <p><strong>Click or drag</strong> the ad audio here</p>
-        <p style="font-size:.78rem;margin-top:.3rem;">MP3, WAV, FLAC, OGG, M4A accepted</p>
-        <input type="file" id="ad-file" accept="audio/*" />
-        <div class="file-info" id="ad-info"></div>
-      </div>
-    </div>
-
-    <div id="ad-prompt-section" class="field hidden">
-      <label>Ad text prompt <span class="hint">– describe what the ad should sound like</span></label>
-      <textarea id="ad-text-prompt" rows="3" placeholder="e.g. A catchy 15-second upbeat jingle for a coffee delivery app, energetic pop style"></textarea>
-    </div>
-  </div>
-
-  <!-- ── Insertion Settings ── -->
-  <div class="card">
-    <div class="card-title">3 · Insertion Settings</div>
-
-    <div class="two-col">
-      <div class="field">
-        <label>Insert at <span class="hint">(seconds)</span></label>
-        <input type="number" id="insert-at" value="30" min="1" step="0.5" />
-      </div>
-      <div class="field">
-        <label>Replace window <span class="hint">(seconds)</span></label>
-        <input type="number" id="replace-window" value="15" min="1" max="120" step="0.5" />
-      </div>
-    </div>
-
-    <div class="field">
-      <div class="toggle-row">
-        <label class="toggle">
-          <input type="checkbox" id="seamless-toggle" checked />
-          <span class="slider"></span>
-        </label>
-        <span style="font-size:.9rem;">Seamless integration <span class="hint">(MusicGPT Inpaint replaces the window in-song)</span></span>
-      </div>
-    </div>
-
-    <!-- Seamless-only options -->
-    <div id="seamless-options" class="collapsible">
-      <div class="field">
-        <label>Integration prompt <span class="hint">(optional — describes how the ad should blend)</span></label>
-        <textarea id="ad-integration-prompt" rows="2" placeholder="e.g. A punchy 15-second advertisement for a coffee app with an upbeat, energetic feel that blends with the surrounding pop music"></textarea>
-      </div>
-    </div>
-
-    <!-- Local splice options -->
-    <div id="local-options" class="collapsible collapsed">
-      <div class="two-col">
-        <div class="field">
-          <label>Crossfade <span class="hint">(ms)</span></label>
-          <input type="number" id="crossfade" value="500" min="0" max="5000" step="50" />
+      <div class="mt-3 flex items-center gap-3">
+        <button class="rounded-full border border-blue-100 bg-white px-4 py-2 text-xs font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50" id="upload-btn">Upload song</button>
+        <div class="flex-1">
+          <input type="range" id="length-slider" min="0" max="60" step="1" value="15" class="w-full h-1 appearance-none rounded-full bg-blue-100 accent-blue-400" />
         </div>
-        <div class="field">
-          <label>Duck volume <span class="hint">(dB, 0 = off)</span></label>
-          <input type="number" id="duck-volume" value="-8" max="0" step="0.5" />
-        </div>
+        <div class="text-[11px] font-medium text-slate-400">max <span id="length-value">15</span>s</div>
       </div>
-    </div>
-  </div>
 
-  <!-- ── MusicGPT Options ── -->
-  <div class="card">
-    <div class="card-title">4 · MusicGPT Options <span class="hint" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:.78rem;">(optional)</span></div>
-    <div class="two-col">
-      <div class="field">
-        <label>Music style <span class="hint">(for AI generation)</span></label>
-        <input type="text" id="music-style" placeholder="e.g. Pop, Jazz, Electronic" />
+      <div class="mt-2 text-xs font-semibold text-emerald-600" id="song-info"></div>
+    </div>
+
+    <button class="mt-4 w-full rounded-2xl bg-gradient-to-r from-[#2563eb] via-[#38bdf8] to-[#60a5fa] py-3 text-base font-bold text-white shadow-[0_20px_50px_-20px_rgba(37,99,235,0.4)] transition hover:brightness-110 active:translate-y-[2px]" id="run-btn">Generate</button>
+
+    <!-- Status -->
+    <div class="mt-5 hidden rounded-2xl border border-blue-100/80 bg-white/80 p-5 shadow-[0_20px_60px_-30px_rgba(37,99,235,0.25)] backdrop-blur" id="status-card">
+      <div class="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Status</div>
+      <div class="flex items-center gap-3">
+        <div id="spinner" class="h-5 w-5 animate-spin rounded-full border-2 border-blue-200 border-t-blue-500"></div>
+        <span id="status-msg" class="text-xs text-slate-500">—</span>
       </div>
-      <div class="field">
-        <label>Vocal gender</label>
-        <select id="gender">
-          <option value="">— no preference —</option>
-          <option value="female">Female</option>
-          <option value="male">Male</option>
-          <option value="neutral">Neutral</option>
-        </select>
-      </div>
+      <div class="mt-3 hidden text-xs font-semibold text-rose-500" id="error-msg"></div>
+      <a class="mt-4 hidden w-full rounded-xl bg-gradient-to-r from-[#2563eb] to-[#38bdf8] py-3 text-center text-sm font-bold text-white shadow-[0_16px_40px_-20px_rgba(37,99,235,0.4)]" id="download-btn" download>Download result</a>
     </div>
+
+    <input type="file" id="song-file" accept="audio/*" class="hidden" />
   </div>
-
-  <!-- ── Submit ── -->
-  <button class="btn" id="run-btn">Inject Ad</button>
-
-  <!-- ── Status ── -->
-  <div class="card" id="status-card" style="margin-top:1.2rem;">
-    <div class="card-title">Status</div>
-    <div style="display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;">
-      <span class="status-pill" id="status-pill">—</span>
-      <span id="status-msg" style="font-size:.88rem;color:var(--muted);">—</span>
-    </div>
-    <div class="progress-bar-wrap"><div class="progress-bar indeterminate" id="progress-bar"></div></div>
-    <div class="error-msg hidden" id="error-msg"></div>
-    <a class="download-btn" id="download-btn" download>Download result</a>
-  </div>
-
-</div>
 
 <script>
   // ── File upload helpers ──────────────────────────────────────────────────
 
-  function setupDrop(zoneId, inputId, infoId, uploadPath) {
-    const zone  = document.getElementById(zoneId);
+  function setupDrop(inputId, infoId, uploadPath, triggerId) {
     const input = document.getElementById(inputId);
     const info  = document.getElementById(infoId);
+    const trigger = document.getElementById(triggerId);
     let fileId  = null;
 
-    zone.addEventListener('click', () => input.click());
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
-    zone.addEventListener('drop', e => {
-      e.preventDefault();
-      zone.classList.remove('dragover');
-      if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-    });
+    trigger.addEventListener('click', () => input.click());
     input.addEventListener('change', () => { if (input.files[0]) handleFile(input.files[0]); });
 
     async function handleFile(file) {
@@ -408,7 +87,7 @@
         const dur = data.duration_seconds ? ` · ${data.duration_seconds.toFixed(1)}s` : '';
         info.textContent = `✓ ${data.filename}${dur}`;
       } catch (e) {
-        info.style.color = 'var(--error)';
+        info.style.color = '#f43f5e';
         info.textContent = `Upload failed: ${e.message}`;
       }
     }
@@ -416,96 +95,90 @@
     return { getFileId: () => fileId };
   }
 
-  const song = setupDrop('song-zone', 'song-file', 'song-info', '/upload/song');
-  const ad   = setupDrop('ad-zone',  'ad-file',  'ad-info',  '/upload/ad');
+  const song = setupDrop('song-file', 'song-info', '/upload/song', 'upload-btn');
 
-  // ── Ad mode toggle ───────────────────────────────────────────────────────
-
-  document.querySelectorAll('input[name="ad-mode"]').forEach(r => {
-    r.addEventListener('change', () => {
-      const isPrompt = r.value === 'text_prompt' && r.checked;
-      document.getElementById('ad-upload-section').classList.toggle('hidden', isPrompt);
-      document.getElementById('ad-prompt-section').classList.toggle('hidden', !isPrompt);
-    });
-  });
-
-  // ── Seamless toggle ──────────────────────────────────────────────────────
-
-  const seamlessToggle = document.getElementById('seamless-toggle');
-  seamlessToggle.addEventListener('change', () => {
-    const on = seamlessToggle.checked;
-    document.getElementById('seamless-options').classList.toggle('collapsed', !on);
-    document.getElementById('local-options').classList.toggle('collapsed', on);
-    document.getElementById('replace-window').closest('.field').style.opacity = on ? '1' : '.4';
+  const lengthSlider = document.getElementById('length-slider');
+  const lengthValue = document.getElementById('length-value');
+  lengthValue.textContent = lengthSlider.value;
+  lengthSlider.addEventListener('input', () => {
+    lengthValue.textContent = lengthSlider.value;
   });
 
   // ── Submit ───────────────────────────────────────────────────────────────
 
   const runBtn     = document.getElementById('run-btn');
   const statusCard = document.getElementById('status-card');
-  const statusPill = document.getElementById('status-pill');
   const statusMsg  = document.getElementById('status-msg');
-  const progressBar = document.getElementById('progress-bar');
+  const spinner = document.getElementById('spinner');
   const errorMsg   = document.getElementById('error-msg');
   const downloadBtn = document.getElementById('download-btn');
 
-  function setPill(status) {
-    statusPill.className = 'status-pill';
-    statusPill.classList.add(`pill-${status}`);
-    statusPill.textContent = status;
+  const thinkingVerbs = [
+    'Thinking…',
+    'Lollygagging…',
+    'Ruminating…',
+    'Contemplating…',
+    'Analyzing…',
+    'Processing…',
+    'Tinkering…',
+    'Mastering…',
+    'Discombobulating…',
+    'Canoodling…',
+    'Julienne-ing…',
+    'Propagating…',
+    'Scheming…',
+    'Booping…',
+    'Zesting…',
+    'Deliberating most earnestly…',
+    'Perusing the particulars…',
+    'Giving the matter due consideration…',
+  ];
+  let verbIndex = 0;
+  function nextVerb() {
+    const verb = thinkingVerbs[verbIndex % thinkingVerbs.length];
+    verbIndex += 1;
+    return verb;
   }
 
   let pollInterval = null;
+  let verbInterval = null;
 
   runBtn.addEventListener('click', async () => {
-    const adMode = document.querySelector('input[name="ad-mode"]:checked').value;
-    const seamless = seamlessToggle.checked;
+    const adMode = 'text_prompt';
+    const seamless = true;
 
     // Validate required inputs
     if (!song.getFileId()) {
       alert('Please upload a source song first.'); return;
     }
-    if (adMode === 'audio_upload' && !ad.getFileId()) {
-      alert('Please upload an ad audio file, or switch to text prompt mode.'); return;
-    }
     const adPromptText = document.getElementById('ad-text-prompt').value.trim();
-    if (adMode === 'text_prompt' && !adPromptText) {
+    if (!adPromptText) {
       alert('Please enter an ad text prompt.'); return;
     }
 
     const payload = {
       song_id: song.getFileId(),
       ad_mode: adMode,
-      insert_at_seconds: parseFloat(document.getElementById('insert-at').value),
+      insert_at_seconds: 30,
       seamless_integration: seamless,
-      replace_window_seconds: parseFloat(document.getElementById('replace-window').value),
-      crossfade_ms: parseInt(document.getElementById('crossfade').value, 10),
-      duck_volume_db: parseFloat(document.getElementById('duck-volume').value),
+      replace_window_seconds: parseFloat(lengthSlider.value),
+      ad_length_seconds: parseFloat(lengthSlider.value),
     };
 
-    if (adMode === 'audio_upload') {
-      payload.ad_id = ad.getFileId();
-    } else {
-      payload.ad_text_prompt = adPromptText;
-    }
+    payload.ad_text_prompt = adPromptText;
 
-    const integrationPrompt = document.getElementById('ad-integration-prompt').value.trim();
-    if (integrationPrompt) payload.ad_integration_prompt = integrationPrompt;
-
-    const musicStyle = document.getElementById('music-style').value.trim();
-    if (musicStyle) payload.music_style = musicStyle;
-
-    const gender = document.getElementById('gender').value;
-    if (gender) payload.gender = gender;
 
     // UI state
     runBtn.disabled = true;
-    statusCard.style.display = 'block';
+    statusCard.classList.remove('hidden');
     errorMsg.classList.add('hidden');
-    downloadBtn.style.display = 'none';
-    progressBar.className = 'progress-bar indeterminate';
-    setPill('processing');
-    statusMsg.textContent = 'Submitting job…';
+    downloadBtn.classList.add('hidden');
+    spinner.classList.remove('hidden');
+    statusMsg.textContent = nextVerb();
+    if (verbInterval) clearInterval(verbInterval);
+    verbInterval = setInterval(() => {
+      statusMsg.textContent = nextVerb();
+    }, 2500);
 
     try {
       const r = await fetch('/inject', {
@@ -526,20 +199,20 @@
           const jr = await fetch(`/jobs/${job_id}`);
           const job = await jr.json();
           setPill(job.status);
-          statusMsg.textContent = job.message || job.status;
+          statusMsg.textContent = job.status === 'processing' ? nextVerb() : job.status;
 
           if (job.status === 'complete') {
             clearInterval(pollInterval);
-            progressBar.className = 'progress-bar';
-            progressBar.style.width = '100%';
-            downloadBtn.style.display = 'inline-block';
+            if (verbInterval) clearInterval(verbInterval);
+            spinner.classList.add('hidden');
+            downloadBtn.classList.remove('hidden');
             downloadBtn.href = `/download/${job.output_filename}`;
             downloadBtn.textContent = `Download result${job.duration_seconds ? ' (' + job.duration_seconds.toFixed(1) + 's)' : ''}`;
             runBtn.disabled = false;
           } else if (job.status === 'failed') {
             clearInterval(pollInterval);
-            progressBar.className = 'progress-bar';
-            progressBar.style.width = '0';
+            if (verbInterval) clearInterval(verbInterval);
+            spinner.classList.add('hidden');
             errorMsg.textContent = `Error: ${job.error || 'Unknown error'}`;
             errorMsg.classList.remove('hidden');
             runBtn.disabled = false;
@@ -550,11 +223,11 @@
       }, 3000);
 
     } catch (e) {
-      setPill('failed');
+      if (verbInterval) clearInterval(verbInterval);
+      spinner.classList.add('hidden');
       statusMsg.textContent = 'Failed to start job';
       errorMsg.textContent = e.message;
       errorMsg.classList.remove('hidden');
-      progressBar.className = 'progress-bar';
       runBtn.disabled = false;
     }
   });

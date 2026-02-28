@@ -140,6 +140,7 @@ def inject_ad_sync(
     crossfade_ms: int = 500,
     duck_volume_db: float = -8.0,
     duck_duration_ms: int = 2000,
+    ad_length_seconds: Optional[float] = None,
     instrumental_path: Optional[Path] = None,
 ) -> float:
     """
@@ -187,6 +188,10 @@ def inject_ad_sync(
     song = _to_mono_stereo(song)
     ad = _to_mono_stereo(ad)
     ad = _match_sample_rate(song, ad)
+
+    if ad_length_seconds is not None and ad_length_seconds > 0:
+        target_ms = int(ad_length_seconds * 1000)
+        ad = ad[:target_ms]
 
     insert_ms = int(insert_at_seconds * 1000)
     insert_ms = max(0, min(insert_ms, len(song)))
@@ -238,6 +243,7 @@ async def inject_ad(
     crossfade_ms: int = 500,
     duck_volume_db: float = -8.0,
     duck_duration_ms: int = 2000,
+    ad_length_seconds: Optional[float] = None,
     instrumental_path: Optional[Path] = None,
 ) -> float:
     """
@@ -256,6 +262,7 @@ async def inject_ad(
         crossfade_ms,
         duck_volume_db,
         duck_duration_ms,
+        ad_length_seconds,
         instrumental_path,
     )
 

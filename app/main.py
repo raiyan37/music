@@ -100,8 +100,10 @@ async def _run_injection_job(job_id: str, req: InjectRequest) -> None:
             jobs[job_id]["message"] = "Submitting inpaint job to MusicGPT..."
             logger.info("[%s] Seamless mode: starting inpaint", job_id)
 
+            replace_length = req.ad_length_seconds if (req.ad_length_seconds and req.ad_length_seconds > 0) else req.replace_window_seconds
+            replace_length = max(1.0, replace_length)
             replace_start = req.insert_at_seconds
-            replace_end = req.insert_at_seconds + req.replace_window_seconds
+            replace_end = req.insert_at_seconds + replace_length
 
             # Derive the prompt
             if req.ad_integration_prompt:
@@ -143,6 +145,7 @@ async def _run_injection_job(job_id: str, req: InjectRequest) -> None:
                     prompt=(req.ad_text_prompt or "").strip(),
                     music_style=req.music_style,
                     gender=req.gender,
+                    output_length=req.ad_length_seconds,
                 )
                 jobs[job_id]["message"] = "Waiting for MusicGPT music generation..."
                 audio_url = await poll_task(task_id, "MUSIC_AI", conversion_id=conversion_id or None)
@@ -166,6 +169,7 @@ async def _run_injection_job(job_id: str, req: InjectRequest) -> None:
                 insert_at_seconds=req.insert_at_seconds,
                 crossfade_ms=req.crossfade_ms,
                 duck_volume_db=req.duck_volume_db,
+                ad_length_seconds=req.ad_length_seconds,
                 instrumental_path=None,
             )
 
