@@ -128,7 +128,10 @@ async def _run_injection_job(job_id: str, req: InjectRequest) -> None:
 
             jobs[job_id]["message"] = "Downloading result..."
             await download_audio(audio_url, output_path)
-            duration = get_duration(output_path)
+            try:
+                duration = get_duration(output_path)
+            except Exception:
+                duration = None
 
         # ------------------------------------------------------------------
         # Path B: Local splice with optional MusicGPT generation
@@ -169,7 +172,11 @@ async def _run_injection_job(job_id: str, req: InjectRequest) -> None:
                 insert_at_seconds=req.insert_at_seconds,
                 crossfade_ms=req.crossfade_ms,
                 duck_volume_db=req.duck_volume_db,
-                ad_length_seconds=req.ad_length_seconds,
+                ad_length_seconds=(
+                    req.ad_length_seconds
+                    if (req.ad_length_seconds is not None and req.ad_length_seconds > 0)
+                    else req.replace_window_seconds
+                ),
                 instrumental_path=None,
             )
 
@@ -246,6 +253,9 @@ async def inject(req: InjectRequest, background_tasks: BackgroundTasks):
         raise HTTPException(
             status_code=422, detail="ad_text_prompt is required when ad_mode=text_prompt"
         )
+
+    if req.ad_length_seconds is not None and req.ad_length_seconds > 0:
+        req.replace_window_seconds = req.ad_length_seconds
 
     job_id = uuid.uuid4().hex
     jobs[job_id] = {

@@ -267,7 +267,11 @@ async def inject_ad(
     )
 
 
-def get_duration(path: Path) -> float:
+def get_duration(path: Path) -> Optional[float]:
     """Return audio duration in seconds without loading the entire file."""
-    seg = AudioSegment.from_file(str(path))
-    return len(seg) / 1000.0
+    try:
+        seg = AudioSegment.from_file(str(path))
+        return len(seg) / 1000.0
+    except FileNotFoundError:
+        # ffprobe/ffmpeg not available; return None instead of failing jobs.
+        return None
